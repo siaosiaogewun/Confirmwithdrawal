@@ -47,7 +47,7 @@ create_table()
 
 # 添加一个新的端点用于获取提现数据
 # 用于前端显示
-@app.route('/api/withdrawals', methods=['GET'])
+@app.route('/api/html', methods=['GET'])
 def get_withdrawals():
     conn = mysql.connector.connect(host=MYSQL_HOST, user=MYSQL_USER, password=MYSQL_PASSWORD, database=MYSQL_DB)
     cursor = conn.cursor(dictionary=True)

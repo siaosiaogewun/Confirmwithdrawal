@@ -51,7 +51,7 @@
 <script>
     // Fetch withdrawal data from the server and populate the table
     function fetchWithdrawals() {
-        fetch('/api/withdrawals')  // Replace with the actual endpoint for fetching withdrawals
+        fetch('/api/html')  // Replace with the actual endpoint for fetching withdrawals
             .then(response => response.json())
             .then(data => {
                 const tableBody = document.getElementById('withdrawalsTableBody');
