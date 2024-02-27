@@ -38,7 +38,6 @@
             <th>User ID</th>
             <th>User Address</th>
             <th>Amount</th>
-            <th>Success</th>
             <th>Transaction ID</th>
             <th>Confirmed</th>
             <th>Action</th>
@@ -66,10 +65,9 @@
                         <td>${withdrawal.userid}</td>
                         <td>${withdrawal.useraddress}</td>
                         <td>${withdrawal.amount}</td>
-                        <td>${withdrawal.success}</td>
                         <td>${withdrawal.tx}</td>
                         <td>${withdrawal.confirmed}</td>
-                        <td>${withdrawal.confirmed === 1 ? '' : `<button onclick="confirmWithdrawal(${withdrawal.id}, this)">Confirm Withdrawal</button>`}</td>
+                        <td>${withdrawal.confirmed === 1 ? 'Confirmed' : `<button onclick="confirmWithdrawal(${withdrawal.id}, this)" ${withdrawal.confirmed === 1 ? 'disabled' : ''}>Confirm Withdrawal</button>`}</td>
                     `;
                     tableBody.appendChild(row);
                 });
@@ -77,67 +75,40 @@
             .catch(error => console.error('Error fetching withdrawals:', error));
     }
 
- // Function to confirm withdrawal
-function fetchWithdrawals() {
-    fetch('/api/withdrawals')
-        .then(response => response.json())
-        .then(data => {
-            const tableBody = document.getElementById('withdrawalsTableBody');
-            tableBody.innerHTML = '';
+    // Function to confirm withdrawal
+    function confirmWithdrawal(withdrawalId, button) {
+        // Disable the button to prevent multiple clicks
+        button.disabled = true;
 
-            data.forEach(withdrawal => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${withdrawal.id}</td>
-                    <td>${withdrawal.ordernumber}</td>
-                    <td>${withdrawal.userid}</td>
-                    <td>${withdrawal.useraddress}</td>
-                    <td>${withdrawal.amount}</td>
-                    <td>${withdrawal.success}</td>
-                    <td>${withdrawal.tx}</td>
-                    <td>${withdrawal.confirmed}</td>
-                    <td>${withdrawal.confirmed === 1 ? 'Confirmed' : `<button onclick="confirmWithdrawal(${withdrawal.id}, this)" ${withdrawal.confirmed === 1 ? 'disabled' : ''}>Confirm Withdrawal</button>`}</td>
-                `;
-                tableBody.appendChild(row);
-            });
+        const customUrl = '/api/withdrawals';  // Use a relative URL
+        fetch(customUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                id: withdrawalId,
+            }),
         })
-        .catch(error => console.error('Error fetching withdrawals:', error));
-}
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Failed to confirm withdrawal: ${response.status} ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Withdrawal confirmed successfully:', data);
+            // Refresh withdrawal data only if needed
+            if (data.confirmed === 1) {
+                fetchWithdrawals();
+            }
+        })
+        .catch(error => {
+            console.error('Error confirming withdrawal:', error.message);
+        });
+    }
 
-// Function to confirm withdrawal
-function confirmWithdrawal(withdrawalId, button) {
-    // Disable the button to prevent multiple clicks
-    button.disabled = true;
-
-    const customUrl = '/api/withdrawals';  // Use a relative URL
-    fetch(customUrl, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            id: withdrawalId,
-        }),
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`Failed to confirm withdrawal: ${response.status} ${response.statusText}`);
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Withdrawal confirmed successfully:', data);
-        // Refresh withdrawal data only if needed
-        if (data.confirmed === 1) {
-            fetchWithdrawals();
-        }
-    })
-    .catch(error => {
-        console.error('Error confirming withdrawal:', error.message);
-    });
-}
-
-document.addEventListener('DOMContentLoaded', fetchWithdrawals);
+    document.addEventListener('DOMContentLoaded', fetchWithdrawals);
 
 </script>
 

@@ -27,7 +27,6 @@ def create_table():
             userid VARCHAR(255),
             useraddress VARCHAR(255),
             amount INT,
-            success INT,
             tx VARCHAR(255),
             confirmed INT
         )
