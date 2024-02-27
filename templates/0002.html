@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmed Withdrawals Dashboard</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Confirmed Withdrawals Dashboard</h1>
+
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Order Number</th>
+            <th>User ID</th>
+            <th>User Address</th>
+            <th>Amount</th>
+            <th>Transaction ID</th>
+            <th>Confirmed</th>
+        </tr>
+    </thead>
+    <tbody id="withdrawalsTableBody">
+        <!-- Confirmed Withdrawal data will be dynamically added here -->
+    </tbody>
+</table>
+
+<script>
+    // Fetch confirmed withdrawal data from the server and populate the table
+    function fetchConfirmedWithdrawals() {
+        fetch('/api/html?type=confirmed')  // Fetch only confirmed withdrawals
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById('withdrawalsTableBody');
+                tableBody.innerHTML = '';  // Clear existing rows
+
+                data.forEach(withdrawal => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${withdrawal.id}</td>
+                        <td>${withdrawal.ordernumber}</td>
+                        <td>${withdrawal.userid}</td>
+                        <td>${withdrawal.useraddress}</td>
+                        <td>${withdrawal.amount}</td>
+                        <td>${withdrawal.tx}</td>
+                        <td>${withdrawal.confirmed}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            })
+            .catch(error => console.error('Error fetching confirmed withdrawals:', error));
+    }
+
+    document.addEventListener('DOMContentLoaded', fetchConfirmedWithdrawals);
+
+</script>
+
+</body>
+</html>

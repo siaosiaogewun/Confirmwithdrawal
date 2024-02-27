@@ -41,24 +41,40 @@ create_table()
 
 
 
+# 未转账
+@app.route('/0001')
+def unconfirmed_withdrawals():
+    return render_template('0001.html')
+
+
+# 已转账
+@app.route('/0002')
+def confirmed_withdrawals():
+    return render_template('0002.html')
 
 
 
 
 # 添加一个新的端点用于获取提现数据
 # 用于前端显示
+# 修改原有的获取提现数据的路由，加入根据页面类型过滤的逻辑
 @app.route('/api/html', methods=['GET'])
 def get_withdrawals():
+    page_type = request.args.get('type', 'all')  # 默认为 all
     conn = mysql.connector.connect(host=MYSQL_HOST, user=MYSQL_USER, password=MYSQL_PASSWORD, database=MYSQL_DB)
     cursor = conn.cursor(dictionary=True)
-    cursor.execute('SELECT * FROM withdrawals')
+
+    if page_type == 'confirmed':
+        cursor.execute('SELECT * FROM withdrawals WHERE confirmed = 1')
+    elif page_type == 'unconfirmed':
+        cursor.execute('SELECT * FROM withdrawals WHERE confirmed = 0')
+    else:
+        cursor.execute('SELECT * FROM withdrawals')
+
     withdrawals = cursor.fetchall()
     conn.close()
 
     return jsonify(withdrawals)
-
-
-
 
 
 
