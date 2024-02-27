@@ -114,9 +114,11 @@ def confirm_withdrawal():
         app.logger.error(f"Error confirming withdrawal: {e}")
         return jsonify({"error": "Internal Server Error"}), 500
     finally:
-        # 关闭数据库连接
-        cursor.close()
-        conn.close()
+    # 关闭数据库连接
+            if 'cursor' in locals() and cursor is not None:
+                cursor.close()
+                if 'conn' in locals() and conn is not None:
+                    conn.close()
 
 
 
@@ -159,6 +161,47 @@ def receive_transfer_data():
 
 
 
+
+@app.route('/api/add_withdrawal', methods=['POST'])
+def add_withdrawal():
+    try:
+        data = request.get_json()
+
+        order_number = data.get('OrderNumber')
+        user_id = data.get('UserID')
+        user_address = data.get('UserAddress')
+        amount = data.get('Amount')
+
+        # If "Transaction ID" is not present in the JSON data, set it to 0 by default
+        transaction_id = data.get('TransactionID', 0)
+
+        # Connect to MySQL database
+        connection = mysql.connector.connect(host=MYSQL_HOST, user=MYSQL_USER, password=MYSQL_PASSWORD, database=MYSQL_DB)
+        cursor = connection.cursor()
+
+        # Insert new withdrawal data into the withdrawals table
+        add_withdrawal_query = """
+        INSERT INTO withdrawals (ordernumber, userid, useraddress, amount, tx, confirmed)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """
+
+        withdrawal_data = (order_number, user_id, user_address, amount, transaction_id, 0)
+
+        cursor.execute(add_withdrawal_query, withdrawal_data)
+        connection.commit()
+
+        # Close database connection
+        cursor.close()
+        connection.close()
+
+        return jsonify({'message': 'Withdrawal added successfully'}), 201
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+
+
+
 # 添加一个新的路由用于首页
 @app.route('/')
 def homepage():
@@ -166,3 +209,5 @@ def homepage():
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
+
+

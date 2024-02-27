@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Withdrawals Dashboard</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        button {
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        button[disabled] {
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Withdrawals Dashboard</h1>
+
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Order Number</th>
+            <th>User ID</th>
+            <th>User Address</th>
+            <th>Amount</th>
+            <th>Transaction ID</th>
+            <th>Confirmed</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody id="withdrawalsTableBody">
+        <!-- Withdrawal data will be dynamically added here -->
+    </tbody>
+</table>
+
+<script>
+    // Fetch withdrawal data from the server and populate the table
+    function fetchWithdrawals() {
+        fetch('/api/withdrawals')  // Replace with the actual endpoint for fetching withdrawals
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById('withdrawalsTableBody');
+                tableBody.innerHTML = '';  // Clear existing rows
+
+                data.forEach(withdrawal => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${withdrawal.id}</td>
+                        <td>${withdrawal.ordernumber}</td>
+                        <td>${withdrawal.userid}</td>
+                        <td>${withdrawal.useraddress}</td>
+                        <td>${withdrawal.amount}</td>
+                        <td>${withdrawal.tx}</td>
+                        <td>${withdrawal.confirmed}</td>
+                        <td>${withdrawal.confirmed === 1 ? 'Confirmed' : `<button onclick="confirmWithdrawal(${withdrawal.id}, this)" ${withdrawal.confirmed === 1 ? 'disabled' : ''}>Confirm Withdrawal</button>`}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            })
+            .catch(error => console.error('Error fetching withdrawals:', error));
+    }
+
+    // Function to confirm withdrawal
+    function confirmWithdrawal(withdrawalId, button) {
+        // Disable the button to prevent multiple clicks
+        button.disabled = true;
+
+        const customUrl = '/api/withdrawals';  // Use a relative URL
+        fetch(customUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                id: withdrawalId,
+            }),
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Failed to confirm withdrawal: ${response.status} ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Withdrawal confirmed successfully:', data);
+            // Refresh withdrawal data only if needed
+            if (data.confirmed === 1) {
+                fetchWithdrawals();
+            }
+        })
+        .catch(error => {
+            console.error('Error confirming withdrawal:', error.message);
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', fetchWithdrawals);
+
+</script>
+
+</body>
+</html>
