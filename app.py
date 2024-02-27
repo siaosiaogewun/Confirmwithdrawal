@@ -1,13 +1,66 @@
 from flask import Flask, jsonify, request, render_template
+from flask import Flask, render_template, redirect, url_for, request
 from flask_cors import CORS  # Import CORS module
 import mysql.connector
 from flask import jsonify
 import requests
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+
 
 
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
+app.secret_key = 'iloveyou'  # Set a secret key for session security
+
+login_manager = LoginManager(app)
+login_manager.login_view = 'login'
+
+
+# User class for login management
+class User(UserMixin):
+    def __init__(self, user_id):
+        self.id = user_id
+
+
+
+
+# Replace this function with your actual user loading logic
+@login_manager.user_loader
+def load_user(user_id):
+    return User(user_id)
+
+
+
+
+# Login route
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        # Replace this with your actual user authentication logic
+        if username == 'baijinsian' and password == '960322iS@':
+            user = User(username)
+            login_user(user)
+            return redirect(url_for('homepage'))
+
+    return render_template('login.html')
+
+
+
+# Logout route
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('login'))
+
+
+
+
+
 
 # MySQL configuration
 MYSQL_HOST = 'localhost'
@@ -43,12 +96,14 @@ create_table()
 
 # 未转账
 @app.route('/0001')
+@login_required
 def unconfirmed_withdrawals():
     return render_template('0001.html')
 
 
 # 已转账
 @app.route('/0002')
+@login_required
 def confirmed_withdrawals():
     return render_template('0002.html')
 
@@ -221,7 +276,13 @@ def add_withdrawal():
 # 添加一个新的路由用于首页
 @app.route('/')
 def homepage():
-    return render_template('index.html')
+    if current_user.is_authenticated:
+        return render_template('index.html')
+    else:
+        return redirect(url_for('login'))
+
+
+# ... (your existing routes remain unchanged)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

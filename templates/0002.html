@@ -23,6 +23,12 @@
 
 <h1>Confirmed Withdrawals Dashboard</h1>
 
+<!-- Add Logout button -->
+<button onclick="logout()">Logout</button>
+
+<!-- Add link to index.html -->
+<a href="/">未完成出款的订单</a>
+
 <table>
     <thead>
         <tr>
@@ -64,6 +70,24 @@
                 });
             })
             .catch(error => console.error('Error fetching confirmed withdrawals:', error));
+    }
+
+    // Function to logout
+    function logout() {
+        // Use a relative URL for the logout route
+        fetch('/logout', {
+            method: 'GET',
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Failed to logout: ${response.status} ${response.statusText}`);
+            }
+            // Redirect to the login page after successful logout
+            window.location.href = '/login';
+        })
+        .catch(error => {
+            console.error('Error logging out:', error.message);
+        });
     }
 
     document.addEventListener('DOMContentLoaded', fetchConfirmedWithdrawals);

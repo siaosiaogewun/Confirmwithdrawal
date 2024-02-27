@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Withdrawals Dashboard</title>
+    <title>Unconfirmed Withdrawals Dashboard</title>
     <style>
         table {
             width: 100%;
@@ -28,7 +28,13 @@
 </head>
 <body>
 
-<h1>Withdrawals Dashboard</h1>
+<h1>Unconfirmed Withdrawals Dashboard</h1>
+
+<!-- Add Logout button -->
+<button onclick="logout()">Logout</button>
+
+<!-- Add link to 0002.html -->
+<a href="/0002">已完成出款的订单</a>
 
 <table>
     <thead>
@@ -44,14 +50,14 @@
         </tr>
     </thead>
     <tbody id="withdrawalsTableBody">
-        <!-- Withdrawal data will be dynamically added here -->
+        <!-- Unconfirmed Withdrawal data will be dynamically added here -->
     </tbody>
 </table>
 
 <script>
-    // Fetch withdrawal data from the server and populate the table
-    function fetchWithdrawals() {
-        fetch('/api/html')  // Replace with the actual endpoint for fetching withdrawals
+    // Fetch unconfirmed withdrawal data from the server and populate the table
+    function fetchUnconfirmedWithdrawals() {
+        fetch('/api/html?type=unconfirmed')  // Fetch only unconfirmed withdrawals
             .then(response => response.json())
             .then(data => {
                 const tableBody = document.getElementById('withdrawalsTableBody');
@@ -72,7 +78,7 @@
                     tableBody.appendChild(row);
                 });
             })
-            .catch(error => console.error('Error fetching withdrawals:', error));
+            .catch(error => console.error('Error fetching unconfirmed withdrawals:', error));
     }
 
     // Function to confirm withdrawal
@@ -100,7 +106,7 @@
             console.log('Withdrawal confirmed successfully:', data);
             // Refresh withdrawal data only if needed
             if (data.confirmed === 1) {
-                fetchWithdrawals();
+                fetchUnconfirmedWithdrawals();  // Refresh unconfirmed withdrawal data
             }
         })
         .catch(error => {
@@ -108,7 +114,25 @@
         });
     }
 
-    document.addEventListener('DOMContentLoaded', fetchWithdrawals);
+    // Function to logout
+    function logout() {
+        // Use a relative URL for the logout route
+        fetch('/logout', {
+            method: 'GET',
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Failed to logout: ${response.status} ${response.statusText}`);
+            }
+            // Redirect to the login page after successful logout
+            window.location.href = '/login';
+        })
+        .catch(error => {
+            console.error('Error logging out:', error.message);
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', fetchUnconfirmedWithdrawals);
 
 </script>
 
