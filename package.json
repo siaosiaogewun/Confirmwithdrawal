@@ -1,0 +1,19 @@
+{
+  "name": "wallet.js",
+  "version": "1.0.0",
+  "description": "wallet.js 依赖tron官方tronweb实现USDT转账",
+  "main": "wallet.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/siaosiaogewun/Confirmwithdrawal.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/siaosiaogewun/Confirmwithdrawal/issues"
+  },
+  "homepage": "https://github.com/siaosiaogewun/Confirmwithdrawal#readme"
+}

@@ -210,7 +210,7 @@ def receive_transfer_data():
         # 例如，可以使用 received_id 和 received_transfer 插入到 withdrawals 表中
 
         # 连接到 MySQL 数据库
-        conn = mysql.connector.connect(host='localhost', user='root', password='960322iS@', database='app')
+        conn = mysql.connector.connect(host=MYSQL_HOST, user=MYSQL_USER, password=MYSQL_PASSWORD, database=MYSQL_DB)
         cursor = conn.cursor(dictionary=True)
 
         # 更新数据库中的 Transaction ID
